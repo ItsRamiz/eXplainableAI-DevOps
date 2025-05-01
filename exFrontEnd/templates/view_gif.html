@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Training Visualization</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            font-family: 'Times New Roman', serif;
+        }
+        img {
+            width: 600px;
+            max-width: 90%;
+            height: auto;
+            border: 3px solid white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-family: 'Times New Roman', serif;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Training Result</h1>
+    <img src="{{ url_for('static', filename='output.gif') }}?v={{ timestamp }}" alt="Training Output GIF">
+    <button onclick="window.location.href='http://localhost:5000/'">Back to Home</button>
+</body>
+</html>

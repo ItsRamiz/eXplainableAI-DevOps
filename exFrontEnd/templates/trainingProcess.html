@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Process</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Times+NewRoman:wght@400;700&display=swap');
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .container {
+            width: 80%;
+            height: 90%;
+            border: 2px solid #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: auto;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group button, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        .form-group button {
+            background-color: #555;
+            color: #fff;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #777;
+        }
+        .title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+        }
+        .text-box {
+            height: 150px;
+        }
+        .loading-bar {
+            height: 30px;
+            background-color: #333;
+        }
+        .loading-bar-inner {
+            height: 100%;
+            width: 0;
+            background-color: #4caf50;
+            transition: width 0.5s;
+        }
+        #gifContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        #gifContainer img {
+            max-width: 80%;
+            max-height: 400px;
+            border: 3px solid white;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+    </style>
+    <script>
+        async function checkTrainingStatus() {
+            const response = await fetch('/training_status');
+            const data = await response.json();
+            const loadingBarInner = document.querySelector('.loading-bar-inner');
+            loadingBarInner.style.width = `${data.progress}%`;
+            if (data.progress < 100) {
+                setTimeout(checkTrainingStatus, 1000);
+            } else {
+                alert('Training Complete!');
+            }
+        }
+
+        function visualizeModel() {
+            const model = sessionStorage.getItem('trainedModel');
+
+            fetch(`http://localhost:5001/download?model=${model}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to download model");
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${model}.zip`;  // or .pt, .pkl, etc.
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error('Download error:', error));
+            }
+
+        function killVisualization() {
+            fetch('/kill_display', {
+                method: 'POST'
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkTrainingStatus();
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Training Process</h1>
+
+        <!-- 👇 GIF placeholder -->
+        <div class="form-group" id="gifContainer"></div>
+
+        <div class="form-group loading-bar">
+            <div class="loading-bar-inner"></div>
+        </div>
+        <div class="form-group">
+            <button onclick="visualizeModel()">Download Trained Model</button>
+        </div>
+        <div class="form-group">
+            <button onclick="window.location.href='/'">Return to Main Page</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+array2gif==1.0.4
+Flask==3.1.0
+flask_cors==5.0.1
+gymnasium==1.0.0
+minigrid==3.0.0
+numpy==2.2.5
+tensorboardX==2.6.2.2
+tensorboardX==2.6.2.2
+torch==2.6.0
+torch_ac==1.4.0

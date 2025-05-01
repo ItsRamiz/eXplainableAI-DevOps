@@ -1,0 +1,47 @@
+Python Version = 3.12
+
+pip install numpy (Version 1.26.4)
+
+pip install --upgrade pip setuptools wheel // Might output alternative command for installation
+
+pip install gymnasium
+
+pip install torch
+
+pip install numpy scipy
+
+pip install cloudpickle six
+
+pip install git+https://github.com/openai/gym.git
+
+conda activate myenv
+
+pip install gym
+
+pip install stable-baselines3
+
+pip install minigrid
+
+pip install gym moviepy
+
+
+# Be Aware, tensorboardX did not install using requirement.txt, double check!
+
+#### UI 
+pip install Werkzeug
+python.exe -m pip install --upgrade pip
+pip install Werkzeug
+pip install click
+pip install blinker
+pip install itsdangerous
+
+
+# extra installations were needed for scripts/visualize.py file
+pip install torch_ac 
+pip install tensorboardX
+
+# Also, there was a need to change '.conda\Lib\site-packages\torch_ac\utils\penv.py'
+Replace this file in your library with the file provided in this directory.
+
+pip install array2gif
+

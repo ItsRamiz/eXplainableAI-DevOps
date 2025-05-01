@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Training</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman:wght@400;700&display=swap');
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: auto;
+        }
+        .checkbox-container {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin: 10px 0;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group button, .form-group select, .form-group textarea {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        .form-group button {
+            background-color: #555;
+            color: #fff;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #777;
+        }
+        .parameters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .parameters-container .form-group {
+            flex: 1 1 45%;
+            margin: 20px;
+        }
+        .submit-button {
+            background-color: #fff;
+            color: #000;
+            font-weight: bold;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            width: 50%;
+            height: auto;
+        }
+        .title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+        }
+        .help-icon {
+            position: absolute;
+            right: 0;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            background-color: #555;
+            color: #fff;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            cursor: pointer;
+        }
+        .help-text {
+            display: none;
+            background-color: #333;
+            color: #fff;
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-size: 0.9em;
+        }
+        .help-text:after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            right: 15px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+    <script>
+        function updateImage() {
+            const envSelect = document.getElementById('env-select');
+            const image = document.getElementById('env-image');
+            const selectedEnv = envSelect.value;
+
+            sessionStorage.setItem('selectedEnvironment', selectedEnv);
+
+            const envImages = {
+                'Unlock': 'static/images/UnlockEnv.gif',
+                'CrossingLava': 'static/images/CrossingEnv.gif',
+            };
+
+            image.src = envImages[selectedEnv] || 'static/images/loading.gif';
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            const formData = new FormData(document.getElementById('training-form'));
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            fetch('/submit_training', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    sessionStorage.setItem('trainedModel', data.modelName);  // Store the model name returned by the server
+                    setTimeout(() => {
+                        window.location.href = "/training_process";
+                    }, 500); // Adjust the delay 
+                } else {
+                    alert('There was an error submitting the form');
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading-overlay').style.display = 'none';
+            });
+        }
+
+        function toggleHelpText(id) {
+            const helpText = document.getElementById(id);
+            helpText.style.display = helpText.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Model Training</h1>
+        <form id="training-form" onsubmit="submitForm(event)">
+            <div class="form-group">
+                <label for="env-select">Choose Environment</label>
+                <select id="env-select" name="environment" onchange="updateImage()">
+                    <option value="">Select Environment</option>
+                    <option value="Unlock">Unlock</option>
+                    <option value="CrossingLava">Crossing Lava</option>
+                </select>
+                <div class="help-icon" onclick="toggleHelpText('help-env')">?</div>
+                <div class="help-text" id="help-env">name of the environment to train on (REQUIRED)</div>
+            </div>
+            <div class="image-container">
+                <img id="env-image" src="static/images/loading.gif" alt="Environment Image">
+            </div>
+            <div class="checkbox-container">
+                <label><input type="checkbox" name="addMemory"> Add Memory</label>
+            </div>
+            <h2>Enter Training Parameters</h2>
+            <div class="form-group">
+                <label for="agent-name">Agent Name</label>
+                <input type="text" id="agent-name" name="agentName" placeholder="Agent Name">
+                <div class="help-icon" onclick="toggleHelpText('help-agent-name')">?</div>
+                <div class="help-text" id="help-agent-name">name of the model (default: default_agent)</div>
+            </div>
+            <div class="parameters-container">
+                <div class="form-group">
+                    <label for="seed">Seed</label>
+                    <input type="number" id="seed" name="seed" placeholder="Seed">
+                    <div class="help-icon" onclick="toggleHelpText('help-seed')">?</div>
+                    <div class="help-text" id="help-seed">random seed (default: 1)</div>
+                </div>
+                <div class="form-group">
+                    <label for="processes">Number of Processes</label>
+                    <input type="number" id="processes" name="processes" placeholder="Number of Processes">
+                    <div class="help-icon" onclick="toggleHelpText('help-processes')">?</div>
+                    <div class="help-text" id="help-processes">number of processes (default: 16)</div>
+                </div>
+                <div class="form-group">
+                    <label for="frames">Number of Frames</label>
+                    <input type="number" id="frames" name="frames" placeholder="Number of Frames">
+                    <div class="help-icon" onclick="toggleHelpText('help-frames')">?</div>
+                    <div class="help-text" id="help-frames">number of frames of training (default: 1e7)</div>
+                </div>
+                <div class="form-group">
+                    <label for="epochs">ePochs</label>
+                    <input type="number" id="epochs" name="epochs" placeholder="ePochs">
+                    <div class="help-icon" onclick="toggleHelpText('help-epochs')">?</div>
+                    <div class="help-text" id="help-epochs">number of epochs for PPO (default: 4)</div>
+                </div>
+                <div class="form-group">
+                    <label for="batch-size">Batch Size</label>
+                    <input type="number" id="batch-size" name="batchSize" placeholder="Batch Size">
+                    <div class="help-icon" onclick="toggleHelpText('help-batch-size')">?</div>
+                    <div class="help-text" id="help-batch-size">batch size for PPO (default: 256)</div>
+                </div>
+                <div class="form-group">
+                    <label for="discount">Discount</label>
+                    <input type="number" id="discount" name="discount" placeholder="Discount">
+                    <div class="help-icon" onclick="toggleHelpText('help-discount')">?</div>
+                    <div class="help-text" id="help-discount">discount factor (default: 0.99)</div>
+                </div>
+                <div class="form-group">
+                    <label for="learning-rate">Learning Rate</label>
+                    <input type="number" id="learning-rate" name="learningRate" placeholder="Learning Rate">
+                    <div class="help-icon" onclick="toggleHelpText('help-learning-rate')">?</div>
+                    <div class="help-text" id="help-learning-rate">learning rate (default: 0.001)</div>
+                </div>
+                <div class="form-group">
+                    <label for="entropy-coef">Entropy Coef</label>
+                    <input type="number" id="entropy-coef" name="entropyCoef" placeholder="Entropy Coef">
+                    <div class="help-icon" onclick="toggleHelpText('help-entropy-coef')">?</div>
+                    <div class="help-text" id="help-entropy-coef">entropy term coefficient (default: 0.01)</div>
+                </div>
+                <div class="form-group">
+                    <label for="adam-epsilon">Optimizer Adam Epsilon</label>
+                    <input type="number" id="adam-epsilon" name="adamEpsilon" placeholder="Optimizer Adam Epsilon">
+                    <div class="help-icon" onclick="toggleHelpText('help-adam-epsilon')">?</div>
+                    <div class="help-text" id="help-adam-epsilon">Adam and RMSprop optimizer epsilon (default: 1e-8)</div>
+                </div>
+                <div class="form-group">
+                    <label for="rmsprop-optimizer">RMSprop Optimizer Alpha</label>
+                    <input type="number" id="rmsprop-optimizer" name="rmspropOptimizer" placeholder="RMSprop Optimizer">
+                    <div class="help-icon" onclick="toggleHelpText('help-rmsprop-optimizer')">?</div>
+                    <div class="help-text" id="help-rmsprop-optimizer">RMSprop optimizer alpha (default: 0.99)</div>
+                </div>
+                <div class="form-group">
+                    <label for="time-steps">Number of Time-steps Backpropagate</label>
+                    <input type="number" id="time-steps" name="timeSteps" placeholder="Number of Time-steps Backpropagate">
+                    <div class="help-icon" onclick="toggleHelpText('help-time-steps')">?</div>
+                    <div class="help-text" id="help-time-steps">number of time-steps gradient is backpropagated (default: 1). If > 1, a LSTM is added to the model to have memory.</div>
+                </div>
+                <div class="form-group">
+                    <label for="max-norm">Max Norm of Gradient</label>
+                    <input type="number" id="max-norm" name="maxNorm" placeholder="Max Norm of Gradient">
+                    <div class="help-icon" onclick="toggleHelpText('help-max-norm')">?</div>
+                    <div class="help-text" id="help-max-norm">maximum norm of gradient (default: 0.5)</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="custom-command">Custom Training Command</label>
+                <textarea id="custom-command" name="customCommand" rows="4" placeholder="Enter your custom training command"></textarea>
+                <div class="help-icon" onclick="toggleHelpText('help-custom-command')">?</div>
+                <div class="help-text" id="help-custom-command">You can input the training command yourself without the need for the previous fields</div>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="submit-button">TRAIN</button>
+            </div>
+        </form>
+    </div>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>    
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Your Custom Env</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        h1 {
+            font-family: 'Lobster', cursive;
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .checkbox-container, .parameters-container, .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+        .form-group label {
+            font-size: 1.2em;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #555;
+            background-color: #444;
+            color: white;
+            border-radius: 5px;
+        }
+        .parameters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .checkbox-container label {
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        .form-group input[type="number"] {
+            max-width: 250px;
+        }
+        .form-group textarea {
+            resize: none;
+        }
+        .train-image {
+            margin-bottom: 20px;
+            max-width: 100%;
+        }
+        .train-button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .help-icon {
+            position: absolute;
+            right: 0;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            background-color: #555;
+            color: #fff;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            cursor: pointer;
+        }
+        .help-text {
+            display: none;
+            background-color: #333;
+            color: #fff;
+            position: absolute;
+            bottom: -10px;
+            right: 30px;
+            width: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-size: 0.9em;
+        }
+        .help-text:after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            right: 15px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .sand-clock {
+            display: none; 
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 10px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Train Your Custom Environment</h1>
+
+    <img id="env-image" alt="Custom Environment Image" class="train-image">
+
+    <h2>Enter Training Parameters</h2>
+
+    <form id="training-form" action="/submit_custom_training" method="POST">
+        <div class="parameters-container">
+            <div class="form-group">
+                <label for="env-name">Environment Name</label>
+                <input type="text" id="env-name" name="EnvName" placeholder="Environment Name">
+                <div class="help-icon" onclick="toggleHelpText('help-env-name')">?</div>
+                <div class="help-text" id="help-env-name">Name of the environment to train on (REQUIRED)</div>
+            </div>
+            <div class="form-group">
+                <label for="agent-name">Agent Name</label>
+                <input type="text" id="agent-name" name="agentName" placeholder="Agent Name">
+                <div class="help-icon" onclick="toggleHelpText('help-agent-name')">?</div>
+                <div class="help-text" id="help-agent-name">Name of the model (default: default_agent)</div>
+            </div>
+            <div class="form-group">
+                <label for="seed">Seed</label>
+                <input type="number" id="seed" name="seed" placeholder="Seed">
+                <div class="help-icon" onclick="toggleHelpText('help-seed')">?</div>
+                <div class="help-text" id="help-seed">Random seed (default: 1)</div>
+            </div>
+            <div class="form-group">
+                <label for="processes">Number of Processes</label>
+                <input type="number" id="processes" name="processes" placeholder="Number of Processes">
+                <div class="help-icon" onclick="toggleHelpText('help-processes')">?</div>
+                <div class="help-text" id="help-processes">Number of processes (default: 16)</div>
+            </div>
+            <div class="form-group">
+                <label for="frames">Number of Frames</label>
+                <input type="number" id="frames" name="frames" placeholder="Number of Frames">
+                <div class="help-icon" onclick="toggleHelpText('help-frames')">?</div>
+                <div class="help-text" id="help-frames">Number of frames of training (default: 1e7)</div>
+            </div>
+            <div class="form-group">
+                <label for="epochs">Epochs</label>
+                <input type="number" id="epochs" name="epochs" placeholder="Epochs">
+                <div class="help-icon" onclick="toggleHelpText('help-epochs')">?</div>
+                <div class="help-text" id="help-epochs">Number of epochs for PPO (default: 4)</div>
+            </div>
+            <div class="form-group">
+                <label for="batch-size">Batch Size</label>
+                <input type="number" id="batch-size" name="batchSize" placeholder="Batch Size">
+                <div class="help-icon" onclick="toggleHelpText('help-batch-size')">?</div>
+                <div class="help-text" id="help-batch-size">Batch size for PPO (default: 256)</div>
+            </div>
+            <div class="form-group">
+                <label for="discount">Discount</label>
+                <input type="number" id="discount" name="discount" placeholder="Discount">
+                <div class="help-icon" onclick="toggleHelpText('help-discount')">?</div>
+                <div class="help-text" id="help-discount">Discount factor (default: 0.99)</div>
+            </div>
+            <div class="form-group">
+                <label for="learning-rate">Learning Rate</label>
+                <input type="number" id="learning-rate" name="learningRate" placeholder="Learning Rate">
+                <div class="help-icon" onclick="toggleHelpText('help-learning-rate')">?</div>
+                <div class="help-text" id="help-learning-rate">Learning rate (default: 0.001)</div>
+            </div>
+            <div class="form-group">
+                <label for="entropy-coef">Entropy Coef</label>
+                <input type="number" id="entropy-coef" name="entropyCoef" placeholder="Entropy Coef">
+                <div class="help-icon" onclick="toggleHelpText('help-entropy-coef')">?</div>
+                <div class="help-text" id="help-entropy-coef">Entropy term coefficient (default: 0.01)</div>
+            </div>
+            <div class="form-group">
+                <label for="adam-epsilon">Optimizer Adam Epsilon</label>
+                <input type="number" id="adam-epsilon" name="adamEpsilon" placeholder="Optimizer Adam Epsilon">
+                <div class="help-icon" onclick="toggleHelpText('help-adam-epsilon')">?</div>
+                <div class="help-text" id="help-adam-epsilon">Adam and RMSprop optimizer epsilon (default: 1e-8)</div>
+        </div>
+        <div class="form-group">
+            <label for="rmsprop-optimizer">RMSprop Optimizer Alpha</label>
+            <input type="number" id="rmsprop-optimizer" name="rmspropOptimizer" placeholder="RMSprop Optimizer Alpha">
+            <div class="help-icon" onclick="toggleHelpText('help-rmsprop-optimizer')">?</div>
+            <div class="help-text" id="help-rmsprop-optimizer">RMSprop optimizer alpha (default: 0.99)</div>
+        </div>
+        <div class="form-group">
+            <label for="time-steps">Number of Time-steps Backpropagate</label>
+            <input type="number" id="time-steps" name="timeSteps" placeholder="Number of Time-steps Backpropagate">
+            <div class="help-icon" onclick="toggleHelpText('help-time-steps')">?</div>
+            <div class="help-text" id="help-time-steps">Number of time-steps gradient is backpropagated (default: 1). If > 1, a LSTM is added to the model to have memory.</div>
+        </div>
+        <div class="form-group">
+            <label for="max-norm">Max Norm of Gradient</label>
+            <input type="number" id="max-norm" name="maxNorm" placeholder="Max Norm of Gradient">
+            <div class="help-icon" onclick="toggleHelpText('help-max-norm')">?</div>
+            <div class="help-text" id="help-max-norm">Maximum norm of gradient (default: 0.5)</div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="custom-command">Custom Training Command</label>
+        <textarea id="custom-command" name="customCommand" rows="4" placeholder="Enter your custom training command"></textarea>
+        <div class="help-icon" onclick="toggleHelpText('help-custom-command')">?</div>
+        <div class="help-text" id="help-custom-command">You can input the training command yourself without the need for the previous fields</div>
+    </div>
+
+        <button type="submit" class="train-button">Train</button>
+    </form>
+    <div id="sand-clock" class="sand-clock"></div>
+
+    <div id="download-link" style="display: none;">
+        <a href="/download-model" download>Download Your Model</a>
+    </div>
+
+    <script>
+        async function loadEnvironmentData() {
+            try {
+                const response = await fetch('/load-environment');
+                const data = await response.json();
+
+                if (data.envImage) {
+                    document.getElementById('env-image').src = data.envImage;
+                }
+            } catch (error) {
+                console.error('Error loading environment data:', error);
+            }
+        }
+
+        function toggleHelpText(id) {
+            const helpText = document.getElementById(id);
+            helpText.style.display = helpText.style.display === 'none' ? 'block' : 'none';
+        }
+
+        loadEnvironmentData();
+        document.getElementById('training-form').addEventListener('submit', function() {
+            document.getElementById('sand-clock').style.display = 'block';
+        });
+    </script>
+</body>
+</html>

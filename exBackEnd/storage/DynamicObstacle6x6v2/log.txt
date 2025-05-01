@@ -1,0 +1,53 @@
+C:\Users\El_Ra\PycharmProjects\ASQ_IT_V2\scripts\train.py --algo ppo --env MiniGrid-Dynamic-Obstacles-6x6-v0 --model DynamicObstacle6x6v2 --save-interval 100 --frames 1500000 --lr 0.00005 --batch-size 512 --epochs 15 --frames-per-proc 64 --discount 0.99 --gae-lambda 0.95 --entropy-coef 0.02 --value-loss-coef 0.5 --max-grad-norm 0.5 --clip-eps 0.2 --procs 16
+
+Namespace(algo='ppo', env='MiniGrid-Dynamic-Obstacles-6x6-v0', model='DynamicObstacle6x6v2', seed=1, log_interval=1, save_interval=100, procs=16, frames=1500000, epochs=15, batch_size=512, frames_per_proc=64, discount=0.99, lr=5e-05, gae_lambda=0.95, entropy_coef=0.02, value_loss_coef=0.5, max_grad_norm=0.5, optim_eps=1e-08, optim_alpha=0.99, clip_eps=0.2, recurrence=1, text=False, mem=False)
+
+Device: cpu
+
+Environments loaded
+
+Training status loaded
+
+Observations preprocessor loaded
+
+Model loaded
+
+ACModel(
+  (image_conv): Sequential(
+    (0): Conv2d(3, 16, kernel_size=(2, 2), stride=(1, 1))
+    (1): ReLU()
+    (2): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)
+    (3): Conv2d(16, 32, kernel_size=(2, 2), stride=(1, 1))
+    (4): ReLU()
+    (5): Conv2d(32, 64, kernel_size=(2, 2), stride=(1, 1))
+    (6): ReLU()
+  )
+  (actor): Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): Tanh()
+    (2): Linear(in_features=64, out_features=3, bias=True)
+  )
+  (critic): Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): Tanh()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  )
+)
+
+Optimizer loaded
+
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Status saved
+Final status saved

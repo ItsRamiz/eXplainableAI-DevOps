@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Environment</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 95vh;
+            flex-direction: column;
+            font-size: 1.5em;
+            position: relative;
+        }
+        h2 {
+            font-family: 'Lobster', cursive;
+            font-size: 3em;
+            margin-bottom: 5px;
+            margin-top: 2px;
+        }
+        #custom-env {
+            text-align: center;
+        }
+
+        .grid {
+            display: grid;
+            margin: 10px auto;
+            gap: 2px;
+            justify-content: center; 
+            align-items: center;    
+        }
+
+        .grid-item {
+            width: 40px;
+            height: 40px;
+            background-color: #444;
+            border: 1px solid #555;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-button {
+            padding: 10px 20px;
+            background-color: #555;
+            border: 1px solid #666;
+            cursor: pointer;
+        }
+
+        .control-button.active {
+            background-color: #ff5733;
+        }
+
+        .color-options {
+            display: none;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 5px;
+        }
+
+        .color-button {
+            padding: 10px 20px;
+            border: 1px solid #666;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        #create-btn, #training-btn, #reset-btn {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        #create-btn {
+            background-color: #28a745;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+
+        #training-btn {
+            display: none;
+            background-color: #555;
+            position: absolute;
+            right: 20px;
+            top: 80px;
+        }
+
+        #reset-btn {
+            display: none;
+            background-color: #d9534f;
+            position: absolute;
+            right: 20px;
+            top: 140px;
+        }
+
+        #create-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="custom-env">
+        <h2>Custom Env</h2>
+        <label for="env-size">Env Size: </label>
+        <select id="env-size">
+            <option value="4">4x4</option>
+            <option value="5">5x5</option>
+            <option value="6">6x6</option>
+            <option value="7">7x7</option>
+            <option value="8">8x8</option>
+        </select>
+
+        <div id="env-grid" class="grid"></div>
+
+        <div class="controls">
+            <button id="wall-btn" class="control-button">Walls</button>
+            <button id="lava-btn" class="control-button">Lava</button>
+            <button id="key-btn" class="control-button">Keys</button>
+            <button id="locked-door-btn" class="control-button">Locked Door</button>
+            <button id="unlocked-door-btn" class="control-button">Unlocked Doors</button>
+            <button id="goal-btn" class="control-button">Goals</button>
+            <button id="start-btn" class="control-button">Start Position</button>
+            <button id="delete-btn" class="control-button">Delete</button>
+        </div>
+
+        <button id="training-btn">GO TO TRAINING PAGE</button>
+        <button id="reset-btn">Reset Env</button>
+
+        <div id="key-colors" class="color-options">
+            <div id="red-key" class="color-button" style="background-color: red;"></div>
+            <div id="green-key" class="color-button" style="background-color: green;"></div>
+            <div id="blue-key" class="color-button" style="background-color: blue;"></div>
+            <div id="yellow-key" class="color-button" style="background-color: yellow;"></div>
+            <div id="purple-key" class="color-button" style="background-color: purple;"></div>
+            <div id="grey-key" class="color-button" style="background-color: grey;"></div>
+        </div>
+
+        <div id="unlocked-door-colors" class="color-options">
+            <div id="red-unlocked-door" class="color-button" style="background-color: red;"></div>
+            <div id="green-unlocked-door" class="color-button" style="background-color: green;"></div>
+            <div id="blue-unlocked-door" class="color-button" style="background-color: blue;"></div>
+            <div id="yellow-unlocked-door" class="color-button" style="background-color: yellow;"></div>
+            <div id="purple-unlocked-door" class="color-button" style="background-color: purple;"></div>
+            <div id="grey-unlocked-door" class="color-button" style="background-color: grey;"></div>
+        </div>
+
+        <div id="locked-door-colors" class="color-options">
+            <div id="red-locked-door" class="color-button" style="background-color: red;"></div>
+            <div id="green-locked-door" class="color-button" style="background-color: green;"></div>
+            <div id="blue-locked-door" class="color-button" style="background-color: blue;"></div>
+            <div id="yellow-locked-door" class="color-button" style="background-color: yellow;"></div>
+            <div id="purple-locked-door" class="color-button" style="background-color: purple;"></div>
+            <div id="grey-locked-door" class="color-button" style="background-color: grey;"></div>
+        </div>
+    </div>
+
+    <button id="create-btn">Create Env</button>
+
+    <script>
+        const envGrid = document.getElementById('env-grid');
+        const envSizeSelect = document.getElementById('env-size');
+        const controlButtons = document.querySelectorAll('.control-button');
+        const keyColors = document.getElementById('key-colors');
+        const unlockedDoorColors = document.getElementById('unlocked-door-colors');
+        const lockedDoorsColors = document.getElementById('locked-door-colors');
+        const resetBtn = document.getElementById('reset-btn');
+        const trainingBtn = document.getElementById('training-btn');
+        let selectedElement = '';
+        let selectedColor = '';
+        let deleteMode = false;
+        let startPosition = null;
+        let customWalls = [];
+        let customLava = [];
+        let customDoors = [];
+        let customKeys = [];
+        let customGoals = [];
+
+        function createGrid(size) {
+            envGrid.innerHTML = '';
+            envGrid.style.gridTemplateColumns = `repeat(${size}, 40px)`;
+            envGrid.style.gridTemplateRows = `repeat(${size}, 40px)`;
+
+            for (let i = 0; i < size * size; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.addEventListener('click', () => {
+                    if (deleteMode) {
+                        deleteGridItem(gridItem);
+                    } else if (selectedElement) {
+                        setGridItem(gridItem);
+                    }
+                });
+                gridItem.addEventListener('dblclick', () => {
+                    deleteGridItem(gridItem);
+                });
+                envGrid.appendChild(gridItem);
+            }
+            const startPositionIndex = 1 * size + 1;
+            const startPositionGridItem = envGrid.children[startPositionIndex];
+            startPositionGridItem.style.backgroundImage = 'url(static/images/customEnvironmentIcons/player.png)';
+            startPosition = startPositionGridItem;
+        }
+
+
+        function resetEnvironment() {
+            customWalls = [];
+            customLava = [];
+            customDoors = [];
+            customKeys = [];
+            customGoals = [];
+            startPosition = null;
+            createGrid(envSizeSelect.value);
+            document.getElementById('create-btn').disabled = false;
+            trainingBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+        }
+
+        function setGridItem(gridItem) {
+            const index = Array.from(envGrid.children).indexOf(gridItem);
+            const row = Math.floor(index / envSizeSelect.value);
+            const col = index % envSizeSelect.value;
+            if (gridItem === startPosition) {
+                alert("You cannot place any object on the start position!");
+                return;  
+            }
+            customWalls = customWalls.filter(pos => pos[0] !== row || pos[1] !== col);
+            customLava = customLava.filter(pos => pos[0] !== row || pos[1] !== col);
+            customKeys = customKeys.filter(pos => pos[0] !== row || pos[1] !== col);
+            customDoors = customDoors.filter(pos => pos[0] !== row || pos[1] !== col);
+            customGoals = customGoals.filter(pos => pos[0] !== row || pos[1] !== col);
+
+            if (selectedElement === 'start') {
+                deleteGridItem(gridItem);
+                if (startPosition) {
+                    startPosition.style.backgroundColor = '#444';
+                    startPosition.style.backgroundImage = '';
+                }
+                startPosition = gridItem;
+                gridItem.style.backgroundImage = 'url(static/images/customEnvironmentIcons/player.png)';
+            } else if (selectedElement === 'wall') {
+                gridItem.style.backgroundColor = 'grey';
+                customWalls.push([row, col]);
+            } else if (selectedElement === 'lava') {
+                gridItem.style.backgroundImage = 'url(static/images/customEnvironmentIcons/lava.png)';
+                customLava.push([row, col]);
+            } else if (selectedElement === 'key' && selectedColor) {
+                const keyImage = getKeyImage(selectedColor);
+                gridItem.style.backgroundImage = `url(${keyImage})`;
+                customKeys.push([row, col, selectedColor]);
+            } else if (selectedElement === 'unlocked' && selectedColor) {
+                const unlockedDoorImage = getUnlockedDoorImage(selectedColor);
+                gridItem.style.backgroundImage = `url(${unlockedDoorImage})`;
+                customDoors.push([row, col, 'unlocked', selectedColor]);
+            } else if (selectedElement === 'locked' && selectedColor) {
+                const lockedDoorImage = getLockedDoorImage(selectedColor);
+                gridItem.style.backgroundImage = `url(${lockedDoorImage})`;
+                customDoors.push([row, col, 'locked', selectedColor]);
+            } else if (selectedElement === 'goal') {
+                gridItem.style.backgroundImage = 'url(static/images/customEnvironmentIcons/goal.png)';
+                customGoals.push([row, col]);
+            }
+        }
+
+        function deleteGridItem(gridItem) {
+            const index = Array.from(envGrid.children).indexOf(gridItem);
+            const row = Math.floor(index / envSizeSelect.value);
+            const col = index % envSizeSelect.value;
+
+            gridItem.style.backgroundColor = '#444';
+            gridItem.style.backgroundImage = '';
+
+            if (gridItem === startPosition) {
+                startPosition = null;
+            } else {
+                customWalls = customWalls.filter(pos => pos[0] !== row || pos[1] !== col);
+                customLava = customLava.filter(pos => pos[0] !== row || pos[1] !== col);
+                customKeys = customKeys.filter(pos => pos[0] !== row || pos[1] !== col);
+                customDoors = customDoors.filter(pos => pos[0] !== row || pos[1] !== col);
+                customGoals = customGoals.filter(pos => pos[0] !== row || pos[1] !== col);
+            }
+        }
+
+        function getKeyImage(color) {
+            switch (color) {
+                case 'red':
+                    return 'static/images/customEnvironmentIcons/key_red.png';
+                case 'green':
+                    return 'static/images/customEnvironmentIcons/key_green.png';
+                case 'blue':
+                    return 'static/images/customEnvironmentIcons/key_blue.png';
+                case 'yellow':
+                    return 'static/images/customEnvironmentIcons/key_yellow.png';
+                case 'purple':
+                    return 'static/images/customEnvironmentIcons/key_purple.png';
+                case 'grey':
+                    return 'static/images/customEnvironmentIcons/key_grey.png';
+                default:
+                    return '';
+            }
+        }
+
+        function getLockedDoorImage(color) {
+            switch (color) {
+                case 'red':
+                    return 'static/images/customEnvironmentIcons/door_red.png';
+                case 'green':
+                    return 'static/images/customEnvironmentIcons/door_green.png';
+                case 'blue':
+                    return 'static/images/customEnvironmentIcons/door_blue.png';
+                case 'yellow':
+                    return 'static/images/customEnvironmentIcons/door_yellow.png';
+                case 'purple':
+                    return 'static/images/customEnvironmentIcons/door_purple.png';
+                case 'grey':
+                    return 'static/images/customEnvironmentIcons/door_grey.png';
+                default:
+                    return '';
+            }
+        }
+
+        function getUnlockedDoorImage(color) {
+            switch (color) {
+                case 'red':
+                    return 'static/images/customEnvironmentIcons/door_red_u.png';
+                case 'green':
+                    return 'static/images/customEnvironmentIcons/door_green_u.png';
+                case 'blue':
+                    return 'static/images/customEnvironmentIcons/door_blue_u.png';
+                case 'yellow':
+                    return 'static/images/customEnvironmentIcons/door_yellow_u.png';
+                case 'purple':
+                    return 'static/images/customEnvironmentIcons/door_purple_u.png';
+                case 'grey':
+                    return 'static/images/customEnvironmentIcons/door_grey_u.png';
+                default:
+                    return '';
+            }
+        }
+
+        function captureGridImage() {
+            const canvas = document.createElement('canvas');
+            canvas.width = envGrid.clientWidth;
+            canvas.height = envGrid.clientHeight;
+            const context = canvas.getContext('2d');
+
+            // Wait for all images to load before drawing them
+            const promises = Array.from(envGrid.children).map(gridItem => {
+                return new Promise(resolve => {
+                    const rect = gridItem.getBoundingClientRect();
+                    context.fillStyle = gridItem.style.backgroundColor || '#444';
+                    context.fillRect(rect.x - envGrid.getBoundingClientRect().x, rect.y - envGrid.getBoundingClientRect().y, rect.width, rect.height);
+
+                    if (gridItem.style.backgroundImage) {
+                        const img = new Image();
+                        img.src = gridItem.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+                        img.onload = () => {
+                            context.drawImage(img, rect.x - envGrid.getBoundingClientRect().x, rect.y - envGrid.getBoundingClientRect().y, rect.width, rect.height);
+                            resolve();  // Ensure this promise resolves only after the image is drawn
+                        };
+                        img.onerror = resolve;  // Resolve even if image fails to load
+                    } else {
+                        resolve();  // Resolve immediately if no background image
+                    }
+                });
+            });
+
+            // Return a promise that resolves when all grid items are drawn
+            return Promise.all(promises).then(() => {
+                return canvas.toDataURL('image/png');
+            });
+        }
+
+
+        async function saveEnvironmentData(custom_Start_Pos, custom_World_Width, customWalls, customLava, customDoors, customKeys, customGoals) {
+            const envImage = await captureGridImage();  // Wait for the image to be fully rendered
+
+            const envData = {
+                custom_Start_Pos,
+                custom_World_Width,
+                custom_Walls: customWalls,
+                custom_Lava: customLava,
+                custom_Doors: customDoors,
+                custom_Keys: customKeys,
+                custom_Goals: customGoals,
+                envImage  // Save the rendered image
+            };
+
+            const response = await fetch('/save-environment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(envData),
+            });
+
+            const result = await response.json();
+            console.log(result.message);
+        }
+
+
+        envSizeSelect.addEventListener('change', (e) => {
+            const size = e.target.value;
+            createGrid(size);
+        });
+
+        controlButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                controlButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                selectedElement = button.id.split('-')[0];
+                deleteMode = false;
+
+                if (selectedElement === 'delete') {
+                    deleteMode = true;
+                }
+
+                if (selectedElement === 'key' || selectedElement === 'unlocked' || selectedElement === 'locked') {
+                    keyColors.style.display = selectedElement === 'key' ? 'flex' : 'none';
+                    unlockedDoorColors.style.display = selectedElement === 'unlocked' ? 'flex' : 'none';
+                    lockedDoorsColors.style.display = selectedElement === 'locked' ? 'flex' : 'none';
+                } else {
+                    keyColors.style.display = 'none';
+                    unlockedDoorColors.style.display = 'none';
+                    lockedDoorsColors.style.display = 'none';
+                    selectedColor = '';
+                }
+            });
+        });
+
+        document.querySelectorAll('.color-button').forEach(button => {
+            button.addEventListener('click', () => {
+                selectedColor = button.id.split('-')[0];
+            });
+        });
+
+        document.getElementById('create-btn').addEventListener('click', () => {
+            const custom_Start_Pos = startPosition ? [Array.from(envGrid.children).indexOf(startPosition) % envSizeSelect.value, Math.floor(Array.from(envGrid.children).indexOf(startPosition) / envSizeSelect.value)] : [1, 1];
+            const custom_World_Width = parseInt(envSizeSelect.value);
+
+            saveEnvironmentData(custom_Start_Pos, custom_World_Width, customWalls, customLava, customDoors, customKeys, customGoals);
+
+            document.getElementById('create-btn').disabled = true;
+            trainingBtn.style.display = 'inline-block';
+            resetBtn.style.display = 'inline-block';
+        });
+
+        resetBtn.addEventListener('click', resetEnvironment);
+
+        trainingBtn.addEventListener('click', () => {
+            window.location.href =  "{{ url_for('trainCustomEnvPage') }}";
+        });
+
+        createGrid(envSizeSelect.value);
+    </script>
+</body>
+</html>

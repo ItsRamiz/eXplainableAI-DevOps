@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aisha & Ramiz</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .menu-bar {
+            display: flex;
+            justify-content: space-around;
+            background-color: #1f1f1f;
+            padding: 10px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 2px -2px gray;
+            font-family: 'Pacifico', cursive;
+        }
+        .menu-bar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease;
+        }
+        .menu-bar a:hover, .dropdown:hover .dropbtn {
+            background-color: #333;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #1f1f1f;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-family: 'Pacifico', cursive;
+        }
+        .dropdown-content a:hover {
+            background-color: #333;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .container {
+            padding: 100px 20px 50px;
+            text-align: center;
+        }
+        .title {
+            font-size: 4.5em;
+            font-family: 'Lobster', cursive;
+            margin-bottom: 30px;
+            margin-top: 50px;
+        }
+        .images-container {
+            overflow: hidden;
+            position: relative;
+            height: 340px;
+            margin-bottom: 40px;
+            margin-top: 80px;
+        }
+        .images {
+            display: flex;
+            animation: scroll 30s linear infinite;
+        }
+        .images img {
+            width: 300px;
+            height: 300px;
+            margin: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes scroll {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-300%);
+            }
+        }
+        .section {
+            padding: 100px 20px;
+            text-align: left;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .section h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            font-family: 'Pacifico', cursive;
+            font-weight: bold;
+        }
+        .section p {
+            font-size: 1.4em;
+            line-height: 1.6;
+            width: 80%;
+            margin: 0 auto;
+            max-width: 1000px;
+            text-align: center;
+            font-family: 'Pacifico', cursive;
+        }
+        #contact {
+            text-align: center;
+        }
+        .contributor {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .contributor img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        .contributor-details {
+            text-align: left;
+        }
+        .contributor-details p {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            font-family: 'Pacifico', cursive;
+        }
+        .contributor-details p img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-bar">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <div class="dropdown">
+            <a href="javascript:void(0)" class="dropbtn">Agents</a>
+            <div class="dropdown-content">
+                <a href="{{ url_for('training') }}">Training</a>
+                <a href="{{ url_for('visualizePage') }}">Visualize</a>
+            </div>
+        </div>
+        <a href="{{ url_for('CustomEnvPage') }}">Custom Environment</a>
+        <a href="#contact">Contact Us</a>
+    </div>
+    <div class="container" id="home">
+        <div class="title">ASQ-IT<br>BRAIN BOOST VERSION</div>
+        <div class="images-container">
+            <div class="images">
+                {% for url in images[:-3] %}
+                {% if url %}
+                    <img src="{{ url }}" alt="Environment">
+                {% else %}
+                    <p>Image not available</p>
+                {% endif %}
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="section" id="about">
+        <h2>Welcome to Brain Boost ASQ-IT!</h2>
+        <p>In our Explainable AI (XAI) System, we offer a variety of environments. Based on your inputted requirements, you can observe and analyze how the agents act and understand the nature of the switch. To help you gain clear insights, we generate videos that visualize, providing a deep understanding of the agents' decision-making processes.<br>
+            In addition to these pre-built environments, our platform allows you to train and visualize agents through the 'Agents' section. Whether you're working with existing environments or creating your own, we provide all the tools you need to see your agents in action. You can even build your own custom environment, train the agent, and watch as we plot the agent's behaviors for you to explore and understand through the 'Custom Environment' section.<br></p>
+    </div>
+    <div class="section" id="contact">
+        <h2>Contributors</h2>
+        <div class="contributor">
+            <img src="{{ images[-3] }}" alt="Aisha">
+            <div class="contributor-details">
+                <p>Aisha Abu dahesh</p>
+                <p>
+                    <img src="{{ images[-1] }}" alt="Gmail"> 
+                    aishadahesh11@gmail.com
+                </p>
+            </div>
+        </div>
+        <div class="contributor">
+            <img src="{{ images[-2] }}" alt="Ramiz">
+            <div class="contributor-details">
+                <p>Ramiz Srour</p>
+                <p>
+                    <img src="{{ images[-1] }}" alt="Gmail"> 
+                    ramiz.srour1@gmail.com
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

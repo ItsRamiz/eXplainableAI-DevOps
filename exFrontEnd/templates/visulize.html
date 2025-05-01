@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualize Your Agent</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Times New Roman', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            border: 2px solid white;
+            border-radius: 10px;
+            text-align: center;
+            background-color: black;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        h1 {
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+        .box {
+            width: 100%;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            margin-top: 40px;
+        }
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            background-color: #444;
+            color: white;
+            font-size: 18px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .visualize-buttons {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .flash-message {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            width: 80%;
+            text-align: center;
+            font-size: 16px;
+        }
+        .flash-success {
+            background-color: green;
+            color: white;
+        }
+        .flash-error {
+            background-color: red;
+            color: white;
+        }
+        .gif-preview {
+            margin-top: 20px;
+        }
+        .gif-preview img {
+            max-width: 90%;
+            max-height: 600px;
+            border: 2px solid white;
+            border-radius: 10px;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate agent list
+            fetch('http://localhost:5001/list_agents')
+                .then(response => response.json())
+                .then(folders => {
+                    const select = document.getElementById('selectAgent');
+                    folders.agents.forEach(folder => {
+                        const option = document.createElement('option');
+                        option.value = folder;
+                        option.textContent = folder;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching agent list:', error));
+        });
+    </script>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    
+    <div class="container">
+        <h1>VISUALIZE YOUR AGENT</h1>
+
+        <!-- 🖼 GIF placeholder -->
+        <div class="gif-preview">
+            {% if gif_exists %}
+                <img src="{{ url_for('static', filename='output.gif') }}?v={{ timestamp }}" alt="Agent Visualization">
+            {% else %}
+                <p>No visualization available yet.</p>
+            {% endif %}
+        </div>
+
+        <form action="{{ url_for('visualizeFunc') }}" method="POST">
+            <div class="box">
+                <p>Choose your trained agent</p>
+                <select id="selectAgent" name="selectAgent">
+                    <option value="">Select an agent</option>
+                </select>
+            </div>
+
+            <div class="visualize-buttons">
+                <button type="submit">VISUALIZE</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

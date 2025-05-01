@@ -1,0 +1,1 @@
+{"environment": "Unlock", "addMemory": false, "agentName": "dodo", "seed": 1, "processes": 16, "frames": 1000, "epochs": 4, "batchSize": 256, "discount": 0.99, "learningRate": 0.001, "entropyCoef": 0.01, "adamEpsilon": 1e-08, "rmspropOptimizer": 0.99, "timeSteps": 1, "maxNorm": 0.5, "customCommand": null}
