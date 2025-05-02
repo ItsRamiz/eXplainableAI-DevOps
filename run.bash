@@ -19,7 +19,7 @@ docker tag devopslocal-backend $DOCKER_USER/backend:latest
 docker push $DOCKER_USER/frontend:latest
 docker push $DOCKER_USER/backend:latest
 
-echo "☸️  Step 4: Kubernetes Apply"
+echo "Kubernetes Apply"
 kubectl apply -f k8s/
 
 echo "Deployment Complete!"
