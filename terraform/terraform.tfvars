@@ -1,1 +1,6 @@
-aws_region = "eu-central-1"
+aws_region      = "eu-central-1"
+bucket_name     = "explainingai"
+instance_type   = "t2.micro"
+ami_id          = "ami-0c2b8ca1dad447f8a"
+key_name        = "key-075bac73baede8283"
+public_key_path = "~/.ssh/id_rsa.pub"
