@@ -1,11 +1,9 @@
-# Initializing S3 Bucket and Uploading Files
-
 provider "aws" {
   region = var.aws_region
 }
 
 resource "aws_s3_bucket" "my_bucket" {
-  bucket = "explainingai"
+  bucket = var.bucket_name
   acl    = "private"
 }
 
@@ -53,7 +51,6 @@ resource "aws_security_group" "app_sg" {
   }
 }
 
-
 resource "aws_iam_role" "ec2_instance_role" {
   name = "ec2-ecr-access-role"
 
@@ -80,32 +77,30 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 }
 
 resource "aws_key_pair" "existing_key" {
-  key_name   = "key-075bac73baede8283"
-  public_key = file("~/.ssh/id_rsa.pub")
+  key_name   = var.key_name
+  public_key = file(var.public_key_path)
 }
 
-# EC2 Backend
 resource "aws_instance" "backend" {
-  ami                    = "ami-0c2b8ca1dad447f8a"  # Ubunutu
-  instance_type          = "t2.micro"
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
   subnet_id              = data.aws_subnets.default.ids[0]
   security_groups        = [aws_security_group.app_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
-  key_name               = aws_key_pair.existing_key.key_name
+  key_name               = var.key_name
 
   tags = {
     Name = "backend"
   }
 }
 
-# EC2 Frontend
 resource "aws_instance" "frontend" {
-  ami                    = "ami-0c2b8ca1dad447f8a" # Ubuntu
-  instance_type          = "t2.micro"
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
   subnet_id              = data.aws_subnets.default.ids[1]
   security_groups        = [aws_security_group.app_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
-  key_name               = aws_key_pair.existing_key.key_name
+  key_name               = var.key_name
 
   tags = {
     Name = "frontend"
